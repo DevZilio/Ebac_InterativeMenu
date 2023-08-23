@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 namespace Screens
@@ -11,18 +12,23 @@ namespace Screens
     {
         Panel,
         Info_Panel,
-        Shop,
+        Shop
     }
+
     public class ScreenBase : MonoBehaviour
     {
         public ScreenType screenType;
 
-        public List<Transform> listofobjects;
+        public List<Transform> listOfObjects;
+        public List<Typper> listOfPhrases;
+
+public Image uiBackground;
 
         public bool startHide = false;
 
         [Header("Animation")]
         public float delayBetweenObjects = .05f;
+
         public float animationDuration = .3f;
 
         private void Start()
@@ -33,15 +39,15 @@ namespace Screens
             }
         }
 
-
         [Button]
-        protected virtual void Show()
+        public virtual void Show()
         {
             ShowObjects();
             Debug.Log("Show");
         }
+
         [Button]
-        protected virtual void Hide()
+        public virtual void Hide()
         {
             HideObjects();
             Debug.Log("HIDE");
@@ -49,24 +55,38 @@ namespace Screens
 
         private void HideObjects()
         {
-            listofobjects.ForEach(i => i.gameObject.SetActive(false));
+            listOfObjects.ForEach(i => i.gameObject.SetActive(false));
+            uiBackground.enabled = false;
         }
-
 
         private void ShowObjects()
         {
-            for (int i = 0; i < listofobjects.Count; i++)
+            for (int i = 0; i < listOfObjects.Count; i++)
             {
-                var obj = listofobjects[i];
+                var obj = listOfObjects[i];
 
                 obj.gameObject.SetActive(true);
-                obj.DOScale(0, animationDuration).From().SetDelay(i * delayBetweenObjects);
+                obj
+                    .DOScale(0, animationDuration)
+                    .From()
+                    .SetDelay(i * delayBetweenObjects);
             }
-        }
-        private void ForceShowObjects()
-        {
-            listofobjects.ForEach(i => i.gameObject.SetActive(true));
+            Invoke(nameof(StartType), delayBetweenObjects*listOfObjects.Count);
+            uiBackground.enabled = true;
         }
 
+        private void StartType()
+        {
+            for (int i = 0; i < listOfPhrases.Count; i++)
+            {
+                listOfPhrases[i].StartType();
+            }
+        }
+
+        private void ForceShowObjects()
+        {
+            listOfObjects.ForEach(i => i.gameObject.SetActive(true));
+            uiBackground.enabled = true;
+        }
     }
 }
